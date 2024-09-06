@@ -16,17 +16,21 @@ public class Main {
     private final DataConvert convert = new DataConvert();
     private final String ADDRESS = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=6585022c";
+    private List<SeriesData> seriesData = new ArrayList<>();
 
     public void showMenu() {
+        var option = -1;
+        while (option != 0) {
         var menu = """
-                1 - Search series
-                2 - Search episodes
-               \s
-                0 - Exit                                \s
-               \s""";
+               1 - Search series
+               2 - Search episodes
+               3 - List searched series
+              
+               0 - Exit
+               """;
 
         System.out.println(menu);
-        var option = scanner.nextInt();
+        option = scanner.nextInt();
         scanner.nextLine();
 
         switch (option) {
@@ -36,16 +40,21 @@ public class Main {
             case 2:
                 searchEpisodeBySeries();
                 break;
+            case 3:
+                listSearchedSeries();
+                break;
             case 0:
                 System.out.println("Exiting...");
                 break;
             default:
                 System.out.println("Invalid option");
         }
+            }
     }
 
     private void searchSeriesWeb() {
         SeriesData data = getSeriesData();
+        seriesData.add(data);
         System.out.println(data);
     }
 
@@ -66,5 +75,9 @@ public class Main {
             seasons.add(seasonData);
         }
         seasons.forEach(System.out::println);
+    }
+
+    private void listSearchedSeries() {
+        seriesData.forEach(System.out::println);
     }
 }
