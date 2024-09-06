@@ -1,13 +1,16 @@
 package br.com.screenmatch_with_jpa.main;
 
+import br.com.screenmatch_with_jpa.model.Series;
 import br.com.screenmatch_with_jpa.model.SeriesData;
 import br.com.screenmatch_with_jpa.model.SeasonData;
 import br.com.screenmatch_with_jpa.service.ApiConsumption;
 import br.com.screenmatch_with_jpa.service.DataConvert;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -77,7 +80,13 @@ public class Main {
         seasons.forEach(System.out::println);
     }
 
-    private void listSearchedSeries() {
-        seriesData.forEach(System.out::println);
+    private void listSearchedSeries(){
+        List<Series> series = new ArrayList<>();
+        series = seriesData.stream()
+                .map(d -> new Series(d))
+                .collect(Collectors.toList());
+        series.stream()
+                .sorted(Comparator.comparing(Series::getGenre))
+                .forEach(System.out::println);
     }
 }
