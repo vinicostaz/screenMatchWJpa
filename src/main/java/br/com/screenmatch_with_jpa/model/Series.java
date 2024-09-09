@@ -3,6 +3,8 @@ package br.com.screenmatch_with_jpa.model;
 import br.com.screenmatch_with_jpa.service.QueryMyMemory;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
 @Entity
@@ -20,6 +22,9 @@ public class Series {
         private String actors;
         private String poster;
         private String plot;
+
+        @Transient
+        private List<Episode> episodes = new ArrayList<>();
 
         public Series (SeriesData seriesData) {
             this.title = seriesData.title();
@@ -42,6 +47,14 @@ public class Series {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Episode> getEpisodes() {
+        return episodes;
+    }
+
+    public void setEpisodes(List<Episode> episodes) {
+        this.episodes = episodes;
     }
 
     public String getTitle() {

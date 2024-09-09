@@ -3,8 +3,10 @@ package br.com.screenmatch_with_jpa.main;
 import br.com.screenmatch_with_jpa.model.Series;
 import br.com.screenmatch_with_jpa.model.SeriesData;
 import br.com.screenmatch_with_jpa.model.SeasonData;
+import br.com.screenmatch_with_jpa.repository.SeriesRepository;
 import br.com.screenmatch_with_jpa.service.ApiConsumption;
 import br.com.screenmatch_with_jpa.service.DataConvert;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,6 +22,11 @@ public class Main {
     private final String ADDRESS = "https://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=6585022c";
     private List<SeriesData> seriesData = new ArrayList<>();
+    private SeriesRepository repository;
+
+    public Main(SeriesRepository repository) {
+        this.repository = repository;
+    }
 
     public void showMenu() {
         var option = -1;
@@ -57,7 +64,9 @@ public class Main {
 
     private void searchSeriesWeb() {
         SeriesData data = getSeriesData();
-        seriesData.add(data);
+        Series serie = new Series(data);
+        // seriesData.add(data);
+        repository.save(serie);1
         System.out.println(data);
     }
 
