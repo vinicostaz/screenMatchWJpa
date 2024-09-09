@@ -66,7 +66,7 @@ public class Main {
         SeriesData data = getSeriesData();
         Series serie = new Series(data);
         // seriesData.add(data);
-        repository.save(serie);1
+        repository.save(serie);
         System.out.println(data);
     }
 
@@ -90,10 +90,7 @@ public class Main {
     }
 
     private void listSearchedSeries(){
-        List<Series> series = new ArrayList<>();
-        series = seriesData.stream()
-                .map(d -> new Series(d))
-                .collect(Collectors.toList());
+        List<Series> series = repository.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Series::getGenre))
                 .forEach(System.out::println);
