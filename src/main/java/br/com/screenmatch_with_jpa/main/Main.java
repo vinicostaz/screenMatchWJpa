@@ -34,6 +34,8 @@ public class Main {
                1 - Search series
                2 - Search episodes
                3 - List searched series
+               4 - Search series by title
+               5 - Search series by actor
               
                0 - Exit
                """;
@@ -51,6 +53,12 @@ public class Main {
                 break;
             case 3:
                 listSearchedSeries();
+                break;
+            case 4:
+                searchSeriesByTitle();
+                break;
+            case 5:
+                searchSeriesByActor();
                 break;
             case 0:
                 System.out.println("Exiting...");
@@ -81,9 +89,7 @@ public class Main {
         System.out.println("Enter the name of the series to search for episodes");
         var seriesName = scanner.nextLine();
 
-        Optional<Series> serie = series.stream()
-                .filter(s -> s.getTitle().toLowerCase().contains(seriesName.toLowerCase()))
-                .findFirst();
+        Optional<Series> serie = repository.findByTitleContainingIgnoreCase(seriesName);
 
         if(serie.isPresent()) {
             var seriesFound = serie.get();
@@ -112,5 +118,28 @@ public class Main {
         series.stream()
                 .sorted(Comparator.comparing(Series::getGenre))
                 .forEach(System.out::println);
+    }
+
+    private void searchSeriesByTitle() {
+        System.out.println("Enter the name of the series to search for episodes");
+        var seriesName = scanner.nextLine();
+        Optional<Series> searchedSeries = repository.findByTitleContainingIgnoreCase(seriesName);
+
+        if(searchedSeries.isPresent()) {
+            System.out.println("Series data: " + searchedSeries.get());
+        } else {
+            System.out.println("Series not found!");
+        }
+    }
+
+    private void searchSeriesByActor() {
+        System.out.println("Enter the actor name for the search: ");
+        var actorName = scanner.nextLine();
+        System.out.println("Ratings starting from which value? ");
+        var rating = scanner.nextDouble();
+        List<Series> seriesFound = repository.findByActorsContainingIgnoreCaseAndRatingGreaterThanEqual(actorName, rating);
+        System.out.println("Series in which " + actorName + " worked: ");
+        seriesFound.forEach(s ->
+                System.out.println(s.getTitle() + ", rating: " + s.getRating()));
     }
 }
