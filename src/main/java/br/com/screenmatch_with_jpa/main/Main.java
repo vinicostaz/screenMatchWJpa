@@ -1,9 +1,6 @@
 package br.com.screenmatch_with_jpa.main;
 
-import br.com.screenmatch_with_jpa.model.Episode;
-import br.com.screenmatch_with_jpa.model.Series;
-import br.com.screenmatch_with_jpa.model.SeriesData;
-import br.com.screenmatch_with_jpa.model.SeasonData;
+import br.com.screenmatch_with_jpa.model.*;
 import br.com.screenmatch_with_jpa.repository.SeriesRepository;
 import br.com.screenmatch_with_jpa.service.ApiConsumption;
 import br.com.screenmatch_with_jpa.service.DataConvert;
@@ -36,6 +33,9 @@ public class Main {
                3 - List searched series
                4 - Search series by title
                5 - Search series by actor
+               6 - Top 5 series
+               7 - Search series by category
+               8 - Filter series
               
                0 - Exit
                """;
@@ -59,6 +59,15 @@ public class Main {
                 break;
             case 5:
                 searchSeriesByActor();
+                break;
+            case 6:
+                searchTop5Series();
+                break;
+            case 7:
+                searchSeriesByCategory();
+                break;
+            case 8:
+                filterSeriesBySeasonAndRating();
                 break;
             case 0:
                 System.out.println("Exiting...");
@@ -141,5 +150,33 @@ public class Main {
         System.out.println("Series in which " + actorName + " worked: ");
         seriesFound.forEach(s ->
                 System.out.println(s.getTitle() + ", rating: " + s.getRating()));
+    }
+
+    private void searchTop5Series() {
+        List<Series> topSeries = repository.findTop5ByOrderByRatingDesc();
+        topSeries.forEach(s ->
+                System.out.println(s.getTitle() + ", rating: " + s.getRating()));
+    }
+
+    private void searchSeriesByCategory() {
+        System.out.println("Which category/genre of series would you like to search for?");
+        var genreName = scanner.nextLine();
+        Category category = Category.fromString(genreName);
+        List<Series> seriesByCategory = repository.findByGenre(category);
+        System.out.println("Series from category : " + category);
+        seriesByCategory.forEach(System.out::println);
+    }
+
+    private void filterSeriesBySeasonAndRating() {
+        System.out.println("Filter series up to how many seasons? ");
+        var totalSeasons = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("With ratings starting from which value? ");
+        var rating = scanner.nextDouble();
+        scanner.nextLine();
+        List<Series> seriesFilter = repository.findByTotalSeasonsLessThanEqualAndRatingGreaterThanEqual(totalSeasons, rating);
+        System.out.println("*** Filtered series ***");
+        seriesFilter.forEach(s ->
+                System.out.println(s.getTitle() + "  - rating: " + s.getRating()));
     }
 }
