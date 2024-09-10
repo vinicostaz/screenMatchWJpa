@@ -4,7 +4,6 @@ import br.com.screenmatch_with_jpa.model.*;
 import br.com.screenmatch_with_jpa.repository.SeriesRepository;
 import br.com.screenmatch_with_jpa.service.ApiConsumption;
 import br.com.screenmatch_with_jpa.service.DataConvert;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +18,7 @@ public class Main {
     private List<SeriesData> seriesData = new ArrayList<>();
     private SeriesRepository repository;
     private List<Series> series = new ArrayList<>();
+    private Optional<Series> searchedSeries;
 
     public Main(SeriesRepository repository) {
         this.repository = repository;
@@ -36,6 +36,9 @@ public class Main {
                6 - Top 5 series
                7 - Search series by category
                8 - Filter series
+               9 - Search episode by snippet
+               10 - Search the top 5 episodes from a series
+               11 - Search episodes from a date
               
                0 - Exit
                """;
@@ -68,6 +71,15 @@ public class Main {
                 break;
             case 8:
                 filterSeriesBySeasonAndRating();
+                break;
+            case 9:
+                searchEpisodeBySnippet();
+                break;
+            case 10:
+                topEpisodesBySeries();
+                break;
+            case 11:
+                searchEpisodesFromADate();
                 break;
             case 0:
                 System.out.println("Exiting...");
@@ -132,7 +144,7 @@ public class Main {
     private void searchSeriesByTitle() {
         System.out.println("Enter the name of the series to search for episodes");
         var seriesName = scanner.nextLine();
-        Optional<Series> searchedSeries = repository.findByTitleContainingIgnoreCase(seriesName);
+        searchedSeries = repository.findByTitleContainingIgnoreCase(seriesName);
 
         if(searchedSeries.isPresent()) {
             System.out.println("Series data: " + searchedSeries.get());
@@ -174,9 +186,48 @@ public class Main {
         System.out.println("With ratings starting from which value? ");
         var rating = scanner.nextDouble();
         scanner.nextLine();
-        List<Series> seriesFilter = repository.findByTotalSeasonsLessThanEqualAndRatingGreaterThanEqual(totalSeasons, rating);
+        List<Series> seriesFilter = repository.seriesBySeasonAndRating(totalSeasons, rating);
         System.out.println("*** Filtered series ***");
         seriesFilter.forEach(s ->
                 System.out.println(s.getTitle() + "  - rating: " + s.getRating()));
     }
+
+
+    private void searchEpisodeBySnippet() {
+        System.out.println("Whats the name of the episode for the search?");
+        var episodeSnippet = scanner.nextLine();
+        List<Episode> episodesFound = repository.episodesBySnippet(episodeSnippet);
+        episodesFound.forEach(e ->
+                System.out.printf("Series: %s - Season: %d - Episode %d - Title: %s\n",
+                        e.getSeries().getTitle(), e.getSeason(),
+                        e.getEpisodeNumber(), e.getTitle()));
+    }
+
+
+    private void topEpisodesBySeries() {
+        searchSeriesByTitle();
+        if(searchedSeries.isPresent()) {
+            Series series = searchedSeries.get();
+            List<Episode> topEpisodes =  repository.topEpisodesBySeries(series);
+            topEpisodes.forEach(e ->
+                    System.out.printf("Series: %s - Season: %d - Episode %d - Title: %s- Rating: %s\n",
+                            e.getSeries().getTitle(), e.getSeason(),
+                            e.getEpisodeNumber(), e.getTitle(), e.getRating()));
+        }
+    }
+
+
+    private void searchEpisodesFromADate() {
+        searchSeriesByTitle();
+        if(searchedSeries.isPresent()) {
+            Series series = searchedSeries.get();
+            System.out.println("Enter the release year limit");
+            var releaseYear = scanner.nextInt();
+            scanner.nextLine();
+
+            List<Episode> yearEpisodes = repository.episodesBySeriesAndYear(series ,releaseYear);
+            yearEpisodes.forEach(System.out::println);
+        }
+    }
+
 }
